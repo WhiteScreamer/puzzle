@@ -2,8 +2,8 @@
 
 @layer components {
     .main-buttons {
-        @apply border border-gray-500 rounded-4xl px-8 py-1 text-gray-400;
-        @apply hover:text-gray-900 hover:border-gray-400 hover:bg-gray-400;
+        @apply border border-gray-500 bg-gray-800 rounded-4xl px-8 py-1 text-gray-400;
+        @apply hover:text-gray-900 hover:border-gray-400 hover:bg-gray-400 hover:cursor-pointer;
     }
 
     .main-label {

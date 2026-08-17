@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Board } from "../gameBoard/board/board";
+import { MyCanvas } from "../canvas/mycanvas";
 
 @Component({
   selector: 'app-game-board',
-  imports: [Board],
+  imports: [MyCanvas],
   templateUrl: './game-board.html',
   styleUrl: './game-board.scss',
 })

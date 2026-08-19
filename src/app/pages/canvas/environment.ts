@@ -7,7 +7,11 @@ export function createRenderer(width: number, height: number): THREE.WebGLRender
 }
 export function renderRenderer(renderer: THREE.WebGLRenderer, container: HTMLDivElement, scene: THREE.Scene, camera: THREE.Camera) {
     container.append(renderer.domElement);
-    renderer.render(scene, camera);
+      const animate = () => {
+        const animationFrameId = requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      };
+      animate();
 }
 export function disposeRenderer(renderer: THREE.WebGLRenderer) {
     if (renderer) {

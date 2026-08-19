@@ -1,21 +1,22 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { InteractObject } from './base/interact-object';
 
-export function createCube(): THREE.Mesh {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
-    const cube = new THREE.Mesh(geometry, material);
-    return cube;
+export class Cube implements InteractObject {
+    private geometry = new THREE.BoxGeometry(1, 1, 1);
+    private material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+    public mesh!: THREE.Mesh;
+    constructor() {
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+    }
+    setColor(color: THREE.ColorRepresentation) {
+        this.material.color.set(color);
+    }
 }
-export function setCubeColor(cube: THREE.Mesh | null, color: THREE.ColorRepresentation) {
-    if (!cube) return;
-    const material = cube?.material as THREE.MeshStandardMaterial;
-    material.color.set(color);
-}
-export function rotateCube(cube: THREE.Mesh) {
-    gsap.to(cube.rotation, {
-        y: cube.rotation.y + Math.PI / 2,
-        duration: 0.5,
-        ease: 'power2.out'
-    })
-}
+// export function rotateCube(cube: THREE.Mesh) {
+//     gsap.to(cube.rotation, {
+//         y: cube.rotation.y + Math.PI / 2,
+//         duration: 0.5,
+//         ease: 'power2.out'
+//     })
+// }

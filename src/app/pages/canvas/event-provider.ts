@@ -1,14 +1,15 @@
 import { signal } from '@angular/core';
 import * as THREE from 'three';
+import { InteractObject } from './base/interact-object';
 export class EventProvider {
-    readonly hoveredObject = signal<THREE.Mesh | null>(null);
-    readonly leftObject = signal<THREE.Mesh | null>(null);
-    readonly clickedObject = signal<THREE.Mesh | null>(null);
+    readonly hoveredObject = signal<InteractObject | null>(null);
+    readonly leftObject = signal<InteractObject | null>(null);
+    readonly clickedObject = signal<InteractObject | null>(null);
     private raycaster = new THREE.Raycaster();
     private mousePosition = new THREE.Vector2();
     private container!: HTMLElement;
     private camera!: THREE.Camera;
-    private checkedObjects!: THREE.Mesh[];
+    private checkedObjects!: InteractObject[];
     constructor() {
     }
     private updateMousePosition(e: MouseEvent) {
@@ -17,26 +18,29 @@ export class EventProvider {
         this.mousePosition.x = ((e.clientX - rect.left) / this.container.clientWidth) * 2 - 1;
         this.mousePosition.y = -((e.clientY - rect.top) / this.container.clientHeight) * 2 + 1;
     }
-    private getIntersection(): THREE.Mesh | null {
+    private getIntersection(): number {
         this.raycaster.setFromCamera(this.mousePosition, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.checkedObjects);
-        if (intersects.length == 0) return null;
-        return intersects[0].object as THREE.Mesh;
+        const intersects = this.raycaster.intersectObjects(this.checkedObjects.map(o=>o.mesh));
+        if (intersects.length == 0) return -1;
+        return this.checkedObjects.map(o=>o.mesh).indexOf(intersects[0].object as THREE.Mesh);
     }
-    addEventListner(contaiter: HTMLElement, camera: THREE.Camera, checkedObjects: THREE.Mesh[]) {
+    addEventListner(contaiter: HTMLElement, camera: THREE.Camera, checkedObjects: InteractObject[]) {
         this.container = contaiter;
         this.camera = camera;
         this.checkedObjects = checkedObjects;
         this.container.addEventListener('pointermove', (e) => {
             this.updateMousePosition(e);
-            var newHoverObject = this.getIntersection();
+            var newHoverObject = this.checkedObjects[this.getIntersection()];
             if (this.hoveredObject() == newHoverObject) return;
             this.leftObject.set(this.hoveredObject());
             this.hoveredObject.set(newHoverObject);
         });
-        this.container.addEventListener('click', (e) => {
+        this.container.addEventListener('mousedown', (e) => {
             if (this.clickedObject() == this.hoveredObject()) return;
             this.clickedObject.set(this.hoveredObject());
+        });
+        this.container.addEventListener('mouseup', (e) => {
+            this.clickedObject.set(null);
         })
     }
 }

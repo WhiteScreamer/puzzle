@@ -20,9 +20,13 @@ export class EventProvider {
     }
     private getIntersection(): number {
         this.raycaster.setFromCamera(this.mousePosition, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.checkedObjects.map(o=>o.mesh));
+        const intersects = this.raycaster.intersectObjects(this.checkedObjects.flatMap(o=>o.meshes));
         if (intersects.length == 0) return -1;
-        return this.checkedObjects.map(o=>o.mesh).indexOf(intersects[0].object as THREE.Mesh);
+        const intersectMesh=intersects[0].object as THREE.Mesh;
+        for(let i=0;i<this.checkedObjects.length;i++){
+            if(this.checkedObjects[i].meshes.indexOf(intersectMesh)>=0) return i;
+        }
+        return -1;
     }
     addEventListner(contaiter: HTMLElement, camera: THREE.Camera, checkedObjects: InteractObject[]) {
         this.container = contaiter;

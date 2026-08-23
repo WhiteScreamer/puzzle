@@ -1,0 +1,72 @@
+import * as THREE from 'three';
+import gsap from 'gsap';
+import { InteractObject } from './base/interact-object';
+type calcPointFunc=(position:THREE.Vector3)=>THREE.Vector3;
+interface AnimatoinInfo {
+    scene: THREE.Scene;
+    obj: InteractObject;
+    axis: THREE.Vector3;
+    turnPointFunc: calcPointFunc;
+    targetAngle: number;
+    targetPointFunc: calcPointFunc;
+    duration: number;
+}
+interface AnimationProxy {
+    angleCurrent: number;
+    angleTartget: number;
+    targetPoint: THREE.Vector3;
+}
+export class AnimationProvider {
+    //https://gsap.com/docs/v3/Eases/
+    private animateTween?: gsap.core.Tween;
+    private info?: AnimatoinInfo;
+    async animate(info: AnimatoinInfo) {
+        await this.finishQuickly();
+        //not finished
+        if (this.info) return;
+        this.info = info;
+        const pivotGroup = new THREE.Group();
+        this.info.scene.add(pivotGroup);
+        const group = this.info.obj.group;
+        const turnPoint=this.info.turnPointFunc(group.position);
+        const targetPoint=this.info.targetPointFunc(group.position);
+        pivotGroup.position.set(turnPoint.x, turnPoint.y, turnPoint.z);
+        pivotGroup.attach(group);
+        const normalizedAxis = this.info.axis.clone().normalize();
+        const proxy = {
+            angleTartget: this.info.targetAngle,
+            angleCurrent: 0,
+            targetPoint: targetPoint
+        };
+        this.animateTween = this.createTween(this.info.duration, proxy, group, normalizedAxis, pivotGroup);
+    }
+    abort() {
+        this.animateTween?.reverse();
+        this.animateTween?.timeScale(3);
+    }
+    async finishQuickly() {
+        this.animateTween?.timeScale(3);
+        await this.animateTween;
+    }
+    private createTween(duration: number, proxy: AnimationProxy,
+        group: THREE.Group, normalizedAxis: THREE.Vector3, pivotGroup: THREE.Group): gsap.core.Tween {
+        return gsap.to(proxy, {
+            angleCurrent: proxy.angleTartget,
+            duration: duration,
+            ease: 'power2.out',
+            onUpdate: () => {
+                pivotGroup!.quaternion.setFromAxisAngle(normalizedAxis, proxy.angleCurrent);
+            },
+            onComplete: () => {
+                this.info!.scene.attach(group);
+                this.info!.scene.remove(pivotGroup!);
+                group.position.set(proxy.targetPoint.x, proxy.targetPoint.y, proxy.targetPoint.z);
+                this.clearAll();
+            }
+        })
+    }
+    private clearAll() {
+        this.animateTween = undefined;
+        this.info = undefined;
+    }
+}

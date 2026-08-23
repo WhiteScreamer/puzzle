@@ -1,4 +1,5 @@
 import * as THREE from 'three';
 export interface InteractObject{
-    mesh: THREE.Mesh;
+    meshes: THREE.Mesh[];
+    group:THREE.Group;
 }

@@ -4,6 +4,8 @@ import { createCamera, createRenderer, createScene, disposeRenderer, initLight, 
 import { EventProvider } from './event-provider';
 import { Cube } from './cube';
 import { AnimationProvider } from './animation-provider';
+import { CUBE_SIZE, EDGE_SIZE } from './base/constants';
+import { Board } from './board';
 
 @Component({
   selector: 'app-mycanvas',
@@ -36,8 +38,8 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
         console.log(`${position.x}, ${position.y}, ${position.z}`);
         animation.animate({
           axis: new THREE.Vector3(0, 1, 0),
-          turnPointFunc: (position:THREE.Vector3)=>new THREE.Vector3(position.x + 0.5, position.y, position.z - 0.5),
-          targetPointFunc: (position:THREE.Vector3)=>new THREE.Vector3(position.x+1, position.y, position.z),
+          turnPointFunc: (position: THREE.Vector3) => new THREE.Vector3(position.x + EDGE_SIZE, position.y, position.z - EDGE_SIZE),
+          targetPointFunc: (position: THREE.Vector3) => new THREE.Vector3(position.x + CUBE_SIZE, position.y, position.z),
           duration: 2,
           obj: cube,
           scene: this.scene,
@@ -50,10 +52,10 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
     this.scene = createScene();
     const camera = createCamera(this.width, this.height);
     initLight(this.scene);
-    const cubes = [new Cube(this.scene)];
+    const board = new Board(this.scene, 3, 3);
     this.renderer = createRenderer(this.width, this.height);
     renderRenderer(this.renderer, this.container, this.scene, camera);
-    this.eventProvider.addEventListner(this.container, camera, cubes);
+    this.eventProvider.addEventListner(this.container, camera, board.cubes);
   }
   ngOnDestroy(): void {
     disposeRenderer(this.renderer);

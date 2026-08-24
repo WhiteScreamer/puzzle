@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { InteractObject } from './base/interact-object';
 import { PositionProvider } from './position-provider';
+import { CUBE_SIZE, EDGE_DEPTH_PERC, EDGE_SIZE } from './base/constants';
 
 export enum Colors {
     red = 0xff0000,
@@ -11,20 +12,19 @@ export enum Colors {
     white = 0xffffff,
     yellow = 0xffff00,
 }
-
 export class Cube implements InteractObject {
     private posProv = new PositionProvider();
-    private geometry = new THREE.BoxGeometry(0.5, 0.5, 0.25);
     meshes: THREE.Mesh[] = [];
     group!: THREE.Group;
     private createMesh(scene:THREE.Scene,color:number, axis:THREE.Vector3,angle:number){
+        const geometry = new THREE.BoxGeometry(CUBE_SIZE*EDGE_SIZE, CUBE_SIZE*EDGE_SIZE, CUBE_SIZE*EDGE_DEPTH_PERC);
         const material=new THREE.MeshStandardMaterial({ color: color });
-        const mesh = new THREE.Mesh(this.geometry.clone(), material);
-        mesh.position.add(new THREE.Vector3(0, 0, 0.5 - 0.25/2));
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.add(new THREE.Vector3(0, 0, EDGE_SIZE - EDGE_DEPTH_PERC/2));
         this.posProv.rotate(scene,mesh,new THREE.Vector3(0,0,0),axis,angle);
         this.meshes.push(mesh);
     }
-    constructor(scene: THREE.Scene) {
+    constructor(scene: THREE.Scene, public col:number, public row:number) {
         this.group = new THREE.Group();
         const yA=new THREE.Vector3(0,1,0);
         //front

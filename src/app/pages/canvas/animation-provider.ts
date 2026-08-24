@@ -30,7 +30,7 @@ export class AnimationProvider {
         const group = this.info.obj.group;
         const turnPoint=this.info.turnPointFunc(group.position);
         const targetPoint=this.info.targetPointFunc(group.position);
-        pivotGroup.position.set(turnPoint.x, turnPoint.y, turnPoint.z);
+        pivotGroup.position.copy(turnPoint);
         pivotGroup.attach(group);
         const normalizedAxis = this.info.axis.clone().normalize();
         const proxy = {
@@ -60,7 +60,7 @@ export class AnimationProvider {
             onComplete: () => {
                 this.info!.scene.attach(group);
                 this.info!.scene.remove(pivotGroup!);
-                group.position.set(proxy.targetPoint.x, proxy.targetPoint.y, proxy.targetPoint.z);
+                group.position.copy(proxy.targetPoint);
                 this.clearAll();
             }
         })

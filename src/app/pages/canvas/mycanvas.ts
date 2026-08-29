@@ -6,6 +6,7 @@ import { Cube } from './cube';
 import { AnimationProvider } from './animation-provider';
 import { CUBE_SIZE, EDGE_SIZE } from './base/constants';
 import { Board } from './board';
+import { Game } from './game';
 
 @Component({
   selector: 'app-mycanvas',
@@ -27,24 +28,14 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
   private get height() {
     return this.container.clientHeight;
   }
+  private game!: Game;
   constructor() {
-    const animation = new AnimationProvider()
     effect(() => {
       //(this.eventProvider.hoveredObject() as Cube)?.setColor(0xff0000);
       //(this.eventProvider.leftObject() as Cube)?.setColor(0x0000ff);
       if (this.eventProvider.clickedObject()) {
         const cube = this.eventProvider.clickedObject() as Cube;
-        const position = cube.group.position;
-        console.log(`${position.x}, ${position.y}, ${position.z}`);
-        animation.animate({
-          axis: new THREE.Vector3(0, 1, 0),
-          turnPointFunc: (position: THREE.Vector3) => new THREE.Vector3(position.x + EDGE_SIZE, position.y, position.z - EDGE_SIZE),
-          targetPointFunc: (position: THREE.Vector3) => new THREE.Vector3(position.x + CUBE_SIZE, position.y, position.z),
-          duration: 2,
-          obj: cube,
-          scene: this.scene,
-          targetAngle: Math.PI / 2
-        });
+        this.game.move(cube, 0.5);
       }
     });
   }
@@ -52,10 +43,10 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
     this.scene = createScene();
     const camera = createCamera(this.width, this.height);
     initLight(this.scene);
-    const board = new Board(this.scene, 3, 3);
     this.renderer = createRenderer(this.width, this.height);
     renderRenderer(this.renderer, this.container, this.scene, camera);
-    this.eventProvider.addEventListner(this.container, camera, board.cubes);
+    this.game = new Game(this.scene, 3, 2);
+    this.eventProvider.addEventListner(this.container, camera, this.game.cubes);
   }
   ngOnDestroy(): void {
     disposeRenderer(this.renderer);

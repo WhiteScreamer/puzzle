@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { InteractObject } from './base/interact-object';
-type calcPointFunc=(position:THREE.Vector3)=>THREE.Vector3;
+import { signal } from '@angular/core';
+export type calcPointFunc=(position:THREE.Vector3)=>THREE.Vector3;
 interface AnimatoinInfo {
     scene: THREE.Scene;
     obj: InteractObject;
@@ -10,6 +11,7 @@ interface AnimatoinInfo {
     targetAngle: number;
     targetPointFunc: calcPointFunc;
     duration: number;
+    animationFuncName:string;
 }
 interface AnimationProxy {
     angleCurrent: number;
@@ -20,6 +22,7 @@ export class AnimationProvider {
     //https://gsap.com/docs/v3/Eases/
     private animateTween?: gsap.core.Tween;
     private info?: AnimatoinInfo;
+    finishedAnimatonObject=signal<InteractObject|null>(null);
     async animate(info: AnimatoinInfo) {
         await this.finishQuickly();
         //not finished
@@ -53,7 +56,7 @@ export class AnimationProvider {
         return gsap.to(proxy, {
             angleCurrent: proxy.angleTartget,
             duration: duration,
-            ease: 'power2.out',
+            ease: this.info!.animationFuncName,
             onUpdate: () => {
                 pivotGroup!.quaternion.setFromAxisAngle(normalizedAxis, proxy.angleCurrent);
             },
@@ -61,6 +64,7 @@ export class AnimationProvider {
                 this.info!.scene.attach(group);
                 this.info!.scene.remove(pivotGroup!);
                 group.position.copy(proxy.targetPoint);
+                this.finishedAnimatonObject.set(this.info!.obj);
                 this.clearAll();
             }
         })

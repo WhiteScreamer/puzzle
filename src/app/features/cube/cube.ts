@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { InteractObject } from './base/interact-object';
+import { InteractObject } from '../base/interact-object';
 import { PositionProvider } from './position-provider';
-import { CUBE_SIZE, EDGE_DEPTH_PERC, EDGE_SIZE } from './base/constants';
+import { CUBE_SIZE, EDGE_DEPTH_PERC, EDGE_SIZE } from './constants';
 
 export enum ColorCodes {
     red = 1,
@@ -21,6 +21,7 @@ export const colorsDict = {
     [ColorCodes.yellow]: 0xffff00
 }
 export class Cube implements InteractObject {
+    id:number=0;
     private posProv = new PositionProvider();
     colors: ColorCodes[] = [];
     meshes: THREE.Mesh[] = [];

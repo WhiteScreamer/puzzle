@@ -1,12 +1,11 @@
-import { AfterViewInit, Component, effect, OnDestroy, viewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, inject, OnDestroy, viewChild } from '@angular/core';
 import * as THREE from 'three';
-import { createCamera, createRenderer, createScene, disposeRenderer, initLight, renderRenderer } from './environment';
-import { EventProvider } from './event-provider';
-import { Cube } from './cube';
-import { AnimationProvider } from './animation-provider';
-import { CUBE_SIZE, EDGE_SIZE } from './base/constants';
-import { Board } from './board';
-import { Game } from './game';
+import { createCamera, createRenderer, createScene, disposeRenderer, initLight, renderRenderer } from '../../../features/cube/environment';
+import { EventProvider } from '../../../features/cube/event-provider';
+import { Cube } from '../../../features/cube/cube';
+import { Game, GameModes } from '../../../features/cube/game';
+import { Menu, MenuEvents } from '../../../services/menu';
+import { AnimationProvider } from '../../../features/cube/animation-provider';
 
 @Component({
   selector: 'app-mycanvas',
@@ -15,10 +14,12 @@ import { Game } from './game';
   styleUrl: 'mycanvas.scss',
 })
 export class MyCanvas implements AfterViewInit, OnDestroy {
+  private menu = inject(Menu);
   canvasContainer = viewChild.required<HTMLDivElement>("canvasContainer");
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
   private eventProvider = new EventProvider();
+  private animationProv = new AnimationProvider()
   private get container() {
     return (this.canvasContainer() as any).nativeElement;
   }
@@ -34,8 +35,24 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
       //(this.eventProvider.hoveredObject() as Cube)?.setColor(0xff0000);
       //(this.eventProvider.leftObject() as Cube)?.setColor(0x0000ff);
       if (this.eventProvider.clickedObject()) {
-        const cube = this.eventProvider.clickedObject() as Cube;
-        this.game.move(cube, 0.5);
+        if (this.game?.mode() == GameModes.starting) {
+          const cube = this.eventProvider.clickedObject() as Cube;
+          this.game.move(cube, 0.5);
+        }
+      }
+    });
+    effect(() => {
+      switch (this.menu.menuEventValue()) {
+        case MenuEvents.shufle:
+          this.game.shufle.shufleStart();
+          break;
+      }
+    });
+    effect(() => {
+      if (this.animationProv.finishedAnimatonObject()) {
+        const cube = this.animationProv.finishedAnimatonObject() as Cube;
+        console.log(cube.id);
+        if (this.game.mode() == GameModes.shuffle) this.game.shufle.shufle();
       }
     });
   }
@@ -45,7 +62,7 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
     initLight(this.scene);
     this.renderer = createRenderer(this.width, this.height);
     renderRenderer(this.renderer, this.container, this.scene, camera);
-    this.game = new Game(this.scene, 3, 2);
+    this.game = new Game(this.scene, 3, 2, this.animationProv);
     this.eventProvider.addEventListner(this.container, camera, this.game.cubes);
   }
   ngOnDestroy(): void {

@@ -1,15 +1,14 @@
 import * as THREE from 'three';
-import { CUBE_SIZE, EDGE_SIZE } from './base/constants';
 import { AnimationProvider, calcPointFunc } from './animation-provider';
 import { Cube } from './cube';
+import { CUBE_SIZE } from './constants';
 export class MovingProvider{
-    private animation = new AnimationProvider()
-    constructor(public scene: THREE.Scene,public shiftMove: number){
+    constructor(public scene: THREE.Scene,public shiftMove: number,public animationProv:AnimationProvider){
     }
     private turn(cube: Cube, axis: THREE.Vector3, turnPointFunc: calcPointFunc, targetPointFunc: calcPointFunc, clockWise: boolean, duration: number) {
         const position = cube.group.position;
         console.log(`${position.x}, ${position.y}, ${position.z}`);
-        this.animation.animate({
+        return this.animationProv.animate({
             axis: axis,
             turnPointFunc: turnPointFunc,
             targetPointFunc: targetPointFunc,
@@ -20,12 +19,9 @@ export class MovingProvider{
             animationFuncName: "power1.in"
             //animationFuncName: "bounce.out"
         });
-        if (this.animation.finishedAnimatonObject()) {
-
-        }
     }
-    public turnLeft(cube: Cube, duration:number) {
-        this.turn(
+    public async turnLeft(cube: Cube, duration:number) {
+        return this.turn(
             cube,
             new THREE.Vector3(0, 1, 0),
             (position: THREE.Vector3) => new THREE.Vector3(position.x + this.shiftMove / 2, position.y, position.z - CUBE_SIZE / 2),
@@ -35,7 +31,7 @@ export class MovingProvider{
         );
     }
     public turnRight(cube: Cube, duration:number) {
-        this.turn(
+        return this.turn(
             cube,
             new THREE.Vector3(0, 1, 0),
             (position: THREE.Vector3) => new THREE.Vector3(position.x - this.shiftMove / 2, position.y, position.z - CUBE_SIZE / 2),
@@ -45,7 +41,7 @@ export class MovingProvider{
         );
     }
     public turnUp(cube: Cube, duration:number) {
-        this.turn(
+        return this.turn(
             cube,
             new THREE.Vector3(1, 0, 0),
             (position: THREE.Vector3) => new THREE.Vector3(position.x, position.y + this.shiftMove / 2, position.z - CUBE_SIZE / 2),
@@ -54,8 +50,8 @@ export class MovingProvider{
             duration
         );
     }
-    public turnDown(cube: Cube, duration:number) {
-        this.turn(
+    public turnDown(cube: Cube, duration:number){
+        return this.turn(
             cube,
             new THREE.Vector3(1, 0, 0),
             (position: THREE.Vector3) => new THREE.Vector3(position.x, position.y - this.shiftMove / 2, position.z - CUBE_SIZE / 2),

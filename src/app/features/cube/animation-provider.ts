@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { InteractObject } from './base/interact-object';
+import { InteractObject } from '../base/interact-object';
 import { signal } from '@angular/core';
 export type calcPointFunc=(position:THREE.Vector3)=>THREE.Vector3;
 interface AnimatoinInfo {

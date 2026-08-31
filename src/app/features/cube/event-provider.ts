@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import * as THREE from 'three';
-import { InteractObject } from './base/interact-object';
+import { InteractObject } from '../base/interact-object';
 export class EventProvider {
     readonly hoveredObject = signal<InteractObject | null>(null);
     readonly leftObject = signal<InteractObject | null>(null);

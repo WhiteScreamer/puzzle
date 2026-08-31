@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { BORDER_PERC, CUBE_SIZE } from './base/constants';
 import { Cube } from './cube';
+import { BORDER_PERC, CUBE_SIZE } from './constants';
 
 export class Board {
     private color = 0x999999;

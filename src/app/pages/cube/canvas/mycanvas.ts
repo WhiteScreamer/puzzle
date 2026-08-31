@@ -52,7 +52,7 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
       if (this.animationProv.finishedAnimatonObject()) {
         const cube = this.animationProv.finishedAnimatonObject() as Cube;
         console.log(cube.id);
-        if (this.game.mode() == GameModes.shuffle) this.game.shufle.shufle();
+        if (this.game.mode() == GameModes.shuffle) this.game.shufle.shufleIteration();
       }
     });
   }

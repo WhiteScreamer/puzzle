@@ -24,9 +24,11 @@ export class AnimationProvider {
     private info?: AnimatoinInfo;
     finishedAnimatonObject=signal<InteractObject|null>(null);
     async animate(info: AnimatoinInfo) {
-        await this.finishQuickly();
-        //not finished
-        if (this.info) return;
+        if (this.info){
+            //not finished
+            await this.finishQuickly();
+            return;
+        }
         this.info = info;
         const pivotGroup = new THREE.Group();
         this.info.scene.add(pivotGroup);

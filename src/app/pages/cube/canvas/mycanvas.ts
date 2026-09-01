@@ -36,8 +36,12 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
       //(this.eventProvider.leftObject() as Cube)?.setColor(0x0000ff);
       if (this.eventProvider.clickedObject()) {
         if (this.game?.mode() == GameModes.starting) {
-          const cube = this.eventProvider.clickedObject() as Cube;
-          this.game.move(cube, 0.5);
+          if (this.animationProv.animationProcessing()) {
+            this.animationProv.finishQuickly();
+          } else {
+            const cube = this.eventProvider.clickedObject() as Cube;
+            this.game.move(cube, 0.5);
+          }
         }
       }
     });
@@ -47,12 +51,22 @@ export class MyCanvas implements AfterViewInit, OnDestroy {
           this.game.shufle.shufleStart();
           break;
       }
+      this.menu.menuEventValue.set(MenuEvents.none);
     });
     effect(() => {
-      if (this.animationProv.finishedAnimatonObject()) {
-        const cube = this.animationProv.finishedAnimatonObject() as Cube;
-        console.log(cube.id);
-        if (this.game.mode() == GameModes.shuffle) this.game.shufle.shufleIteration();
+      if (!this.animationProv.animationProcessing()) {
+        switch (this.game?.mode()) {
+          case GameModes.shuffle:
+            this.game.shufle.shufleIteration();
+            break;
+          case GameModes.starting:
+            this.game.checkWin();
+            break;
+          case GameModes.win:
+            alert("Win!");
+            this.game.mode.set(GameModes.init);
+            break;
+        }
       }
     });
   }

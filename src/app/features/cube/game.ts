@@ -12,7 +12,8 @@ export enum Directions {
 export enum GameModes {
     init,
     shuffle,
-    starting
+    starting,
+    win
 }
 export class Game {
     public cubes: Cube[] = [];
@@ -45,8 +46,28 @@ export class Game {
         }
     }
     private getColorByCube(cube: Cube): ColorCodes {
-        const colorIndex = cube.meshes.map(m => m.position.z).reduce((maxIndex, z, index, arr) => (z < arr[maxIndex] ? maxIndex : index), 0);
-        return cube.colors[colorIndex];
+        let maxIndex=0;
+        let target=new THREE.Vector3();
+        for(let i=1;i<cube.meshes.length;i++){
+            target=cube.meshes[maxIndex].getWorldPosition(target);
+            const maxZ=target.z;
+            target=cube.meshes[i].getWorldPosition(target);
+            const z=target.z;
+            if(z>maxZ) maxIndex=i;
+        }
+        //const colorIndex = cube.meshes.map(m => m.position.z).reduce((maxIndex, z, index, arr) => (z < arr[maxIndex] ? maxIndex : index), 0);
+        return cube.colors[maxIndex];
+    }
+    public checkWin(){
+        for(let i=1;i<this.cubes.length;i++){
+            const cubePrev=this.cubes[i-1];
+            const cubeCurrent=this.cubes[i];
+            const colorPrev=this.getColorByCube(cubePrev);
+            const colorCurr=this.getColorByCube(cubeCurrent);
+            if(colorPrev!=colorCurr) return;
+        }
+        this.mode.set(GameModes.win);
+        //console.log("win")
     }
     //moving
     public getDirection(pos1: THREE.Vector3, pos2: THREE.Vector3): Directions {
